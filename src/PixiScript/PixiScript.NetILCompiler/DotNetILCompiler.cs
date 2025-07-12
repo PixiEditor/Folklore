@@ -10,6 +10,8 @@ namespace PixiScript.NetILTranspiler;
 
 public class DotNetILCompiler : ISyntaxTreeCompiler
 {
+    public string Name { get; } = ".NET IL Compiler";
+
     public Action DynamicCompile(SyntaxTree syntaxTree)
     {
         // use ILGenerator

@@ -10,6 +10,8 @@ public class LlvmCompiler : ISyntaxTreeCompiler
     private LLVMValueRef printfFunc;
     private LLVMTypeRef printfType;
 
+    public string Name { get; } = "LLVM";
+
     public unsafe Action DynamicCompile(SyntaxTree syntaxTree)
     {
         LLVMModuleRef module = LLVMModuleRef.CreateWithName("PixiScriptNode");
