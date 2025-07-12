@@ -73,7 +73,7 @@ public class LlvmCompiler : ISyntaxTreeCompiler
 
             if (n is Call call)
             {
-                if (call.FunctionName == "print")
+                if (call.FunctionName == "log")
                 {
                     string message = call.Arguments.Count > 0 ? call.Arguments[0] : string.Empty;
                     LLVMValueRef local;

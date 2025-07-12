@@ -4,6 +4,8 @@ namespace PixiScript.Syntax;
 
 public class VariableDeclaration : SyntaxNode
 {
+    public static readonly string[] BuiltInTypes = { "number", "text" };
+
     public override List<SyntaxRule>? Rules { get; }
 
     public string VariableType => Tokens.Count > 0 ? Tokens[0].Text : string.Empty;

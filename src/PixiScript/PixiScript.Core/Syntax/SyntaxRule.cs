@@ -13,5 +13,5 @@ public abstract class SyntaxRule
         return this;
     }
 
-    public abstract bool IsValid(SyntaxNode node);
+    public abstract bool IsValid();
 }

@@ -152,7 +152,7 @@ public class TokenizerTests
     public void TestFunctionCallTokenizer()
     {
         string syntax = """
-                            print("Hello, World!");
+                            log("Hello, World!");
                         """;
 
         Tokenizer tokenizer = new Tokenizer(syntax);
@@ -161,7 +161,7 @@ public class TokenizerTests
         Assert.NotEmpty(tokens);
         Assert.All(tokens, token => Assert.IsType<Token>(token));
         Assert.Equal(5, tokens.Count);
-        Assert.Equal("print", tokens[0].Text);
+        Assert.Equal("log", tokens[0].Text);
         Assert.Equal(TokenKind.Keyword, tokens[0].Kind);
         Assert.Equal("(", tokens[1].Text);
         Assert.Equal(TokenKind.OpenPassingScope, tokens[1].Kind);
@@ -178,7 +178,7 @@ public class TokenizerTests
     {
         string syntax = """
                         text myText = "Hello, World!";
-                        print(myText);
+                        log(myText);
                         """;
 
         Tokenizer tokenizer = new Tokenizer(syntax);
@@ -197,7 +197,7 @@ public class TokenizerTests
         Assert.Equal(TokenKind.Literal, tokens[3].Kind);
         Assert.Equal(";", tokens[4].Text);
         Assert.Equal(TokenKind.EndOfLine, tokens[4].Kind);
-        Assert.Equal("print", tokens[5].Text);
+        Assert.Equal("log", tokens[5].Text);
         Assert.Equal(TokenKind.Keyword, tokens[5].Kind);
         Assert.Equal("(", tokens[6].Text);
         Assert.Equal(TokenKind.OpenPassingScope, tokens[6].Kind);

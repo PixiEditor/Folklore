@@ -70,7 +70,7 @@ public class ParserTests
     {
         string syntax = """
                         number someNumber = 10;
-                        print(someNumber);
+                        log(someNumber);
                         """;
 
         var parsed = Parser.Parse(syntax, out string[]? errors);
@@ -91,7 +91,7 @@ public class ParserTests
         Assert.Equal("10", firstAssignment.AssignedConstantLiteral);
 
         var printCall = (Call)parsed.Root.Children[1];
-        Assert.Equal("print", printCall.FunctionName);
+        Assert.Equal("log", printCall.FunctionName);
         Assert.Single(printCall.Arguments);
         Assert.Equal("someNumber", printCall.Arguments[0]);
     }

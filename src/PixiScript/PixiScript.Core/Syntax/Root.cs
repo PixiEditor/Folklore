@@ -4,17 +4,10 @@ public class Root : SyntaxNode
 {
     public override List<SyntaxRule>? Rules { get; }
 
-    public List<Type> AllowedNodeTypes { get; } = new()
-    {
-        typeof(VariableDeclaration),
-        typeof(Call)
-    };
-
     public List<SyntaxNode> PotentialNodes { get; } = new List<SyntaxNode>();
 
     public Root()
     {
-
     }
 
     protected override void OnTokenAdded(Token token)
@@ -25,7 +18,7 @@ public class Root : SyntaxNode
             foreach (var node in PotentialNodes)
             {
                 node.AddToken(token);
-                if(node.IsValid())
+                if (node.IsValid())
                 {
                     Children.Add(node);
                     foundValidNode = true;
@@ -42,17 +35,20 @@ public class Root : SyntaxNode
         }
 
         // TODO: Variable type detection
-        if (token is { Kind: TokenKind.Keyword, Text: "number" })
+        if (token is { Kind: TokenKind.Keyword })
         {
-            VariableDeclaration variableDeclaration = new VariableDeclaration();
-            variableDeclaration.AddToken(token);
-            PotentialNodes.Add(variableDeclaration);
-        }
-        else if (token.Kind == TokenKind.Keyword && Call.BuiltInFunctions.Contains(token.Text))
-        {
-            Call call = new Call();
-            call.AddToken(token);
-            PotentialNodes.Add(call);
+            if (IsBuiltInVarType(token.Text))
+            {
+                VariableDeclaration variableDeclaration = new VariableDeclaration();
+                variableDeclaration.AddToken(token);
+                PotentialNodes.Add(variableDeclaration);
+            }
+            else if (IsBuiltInFunc(token.Text))
+            {
+                Call call = new Call();
+                call.AddToken(token);
+                PotentialNodes.Add(call);
+            }
         }
     }
 
@@ -60,5 +56,15 @@ public class Root : SyntaxNode
     {
         return Children.Count > 0 &&
                Children.All(child => child.IsValid());
+    }
+
+    private static bool IsBuiltInVarType(string type)
+    {
+        return VariableDeclaration.BuiltInTypes.Contains(type);
+    }
+
+    private static bool IsBuiltInFunc(string func)
+    {
+        return Call.BuiltInFunctions.Contains(func);
     }
 }

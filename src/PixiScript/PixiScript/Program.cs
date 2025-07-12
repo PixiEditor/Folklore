@@ -6,19 +6,27 @@ using PixiScript.Intermediate;
 using PixiScript.LLVMCompiler;
 using PixiScript.NetILTranspiler;
 
-StringBuilder inputBuilder = new StringBuilder();
-Console.WriteLine("Write your PixiScript code below. Type 'exit' on a new line to finish input:");
-
-while (true)
+string input = string.Empty;
+if (args.Length == 0)
 {
-    string? line = Console.ReadLine();
-    if (line == null || line.Trim().ToLower() == "exit")
-        break;
+    StringBuilder inputBuilder = new StringBuilder();
+    Console.WriteLine("Write your PixiScript code below. Type 'exit' on a new line to finish input:");
 
-    inputBuilder.AppendLine(line);
+    while (true)
+    {
+        string? line = Console.ReadLine();
+        if (line == null || line.Trim().ToLower() == "exit")
+            break;
+
+        inputBuilder.AppendLine(line);
+    }
+
+    input = inputBuilder.ToString();
 }
-
-string input = inputBuilder.ToString();
+else if (args.Length == 1 && Path.GetExtension(args[0]) == ".pxs" && File.Exists(args[0]))
+{
+    input = File.ReadAllText(args[0]);
+}
 
 var parsed = Parser.Parse(input, out string[]? errors);
 

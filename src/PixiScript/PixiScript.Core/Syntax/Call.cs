@@ -4,7 +4,7 @@ public class Call : SyntaxNode
 {
     public static readonly string[] BuiltInFunctions = new[]
     {
-        "print"
+        "log"
     };
 
     public override List<SyntaxRule>? Rules { get; }
