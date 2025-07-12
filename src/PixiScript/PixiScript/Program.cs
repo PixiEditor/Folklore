@@ -2,6 +2,8 @@
 using System.Diagnostics;
 using System.Text;
 using PixiScript;
+using PixiScript.Intermediate;
+using PixiScript.LLVMCompiler;
 using PixiScript.NetILTranspiler;
 
 StringBuilder inputBuilder = new StringBuilder();
@@ -34,7 +36,7 @@ if (parsed == null)
 }
 
 Console.WriteLine("Parsing succeeded. Compiling...");
-DotNetILCompiler compiler = new DotNetILCompiler();
+ISyntaxTreeCompiler compiler = new LlvmCompiler();
 Stopwatch sw = Stopwatch.StartNew();
 var main = compiler.DynamicCompile(parsed);
 sw.Stop();

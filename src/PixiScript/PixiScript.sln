@@ -6,11 +6,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixiScript.Tests", "PixiScr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixiScript.Intermediate", "PixiScript.Intermediate\PixiScript.Intermediate.csproj", "{11740EE4-EE05-420D-AC4A-3F11DE6686A7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixiScript.NetILTranspiler", "PixiScript.NetILTranspiler\PixiScript.NetILTranspiler.csproj", "{8D2FC647-B973-4A97-B4F5-F09DDF5AF561}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixiScript.NetILCompiler", "PixiScript.NetILCompiler\PixiScript.NetILCompiler.csproj", "{8D2FC647-B973-4A97-B4F5-F09DDF5AF561}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestCS", "TestCS\TestCS.csproj", "{5CE2B7C7-41C7-4D8E-9E40-DB672D4FDD0B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixiScript", "PixiScript\PixiScript.csproj", "{32CA6705-C950-411F-A8C0-4884A31CC2D2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixiScript.LLVMCompiler", "PixiScript.LLVMCompiler\PixiScript.LLVMCompiler.csproj", "{A87B0FC6-8552-46B9-A4FF-827AD8B98E7A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -42,5 +44,9 @@ Global
 		{32CA6705-C950-411F-A8C0-4884A31CC2D2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{32CA6705-C950-411F-A8C0-4884A31CC2D2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{32CA6705-C950-411F-A8C0-4884A31CC2D2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A87B0FC6-8552-46B9-A4FF-827AD8B98E7A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A87B0FC6-8552-46B9-A4FF-827AD8B98E7A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A87B0FC6-8552-46B9-A4FF-827AD8B98E7A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A87B0FC6-8552-46B9-A4FF-827AD8B98E7A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
