@@ -22,7 +22,7 @@ public class VariableDeclaration : SyntaxNode
         if (potentialAssignmentNode is not null)
         {
             potentialAssignmentNode.AddToken(token);
-            if (potentialAssignmentNode.IsValid())
+            if (potentialAssignmentNode.IsValid(out _))
             {
                 Children.Add(potentialAssignmentNode);
                 potentialAssignmentNode = null;
@@ -38,18 +38,46 @@ public class VariableDeclaration : SyntaxNode
         }
     }
 
-    public override bool IsValid()
+    public override bool IsValid(out string[] errors)
     {
-        if(Tokens.Count < 3)
+        if (Tokens.Count < 3)
+        {
+            errors = new[] { Tokens.Count == 1 ? $"Expected variable name at line: {Tokens[0].Line} column: {Tokens[0].Column}"
+                : $"Missing ';' at line: {Tokens.Last().Line} column: {Tokens.Last().Column + 1}" };
             return false;
+        }
 
         if (Tokens[0].Kind != TokenKind.Keyword)
+        {
+            errors = new[] { $"Expected variable type at line: {Tokens[0].Line} column: {Tokens[0].Column}" };
             return false;
+        }
 
-        if(Tokens[1].Kind != TokenKind.Identifier)
+        if (Tokens[1].Kind != TokenKind.Identifier)
+        {
+            errors = new[] { $"Unexpected token '{Tokens[1].Text}' at line: {Tokens[1].Line} column: {Tokens[1].Column}" };
             return false;
+        }
 
-        return (potentialAssignmentNode?.IsValid() ?? true) &&
-               Tokens.Last().Kind == TokenKind.EndOfLine;
+        if(potentialAssignmentNode != null && !potentialAssignmentNode.IsValid(out errors))
+        {
+            return false;
+        }
+
+        bool eolPresent = Tokens.Last().Kind == TokenKind.EndOfLine;
+        if (!eolPresent)
+        {
+            errors = new[] { $"Missing ';' at line: {Tokens.Last().Line} column: {Tokens.Last().Column + 1}" };
+            return false;
+        }
+
+        if (!BuiltInTypes.Contains(VariableType))
+        {
+            errors = new[] { $"Unknown variable type '{VariableType}' at line: {Tokens[0].Line} column: {Tokens[0].Column}" };
+            return false;
+        }
+
+        errors = [];
+        return true;
     }
 }

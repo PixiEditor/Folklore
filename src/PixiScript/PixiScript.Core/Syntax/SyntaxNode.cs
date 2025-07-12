@@ -8,7 +8,7 @@ public abstract class SyntaxNode
     public List<Token> Tokens { get; protected set; } = new List<Token>();
     public int TokenPosition { get; set; } = 0;
 
-    public abstract bool IsValid();
+    public abstract bool IsValid(out string[] errors);
 
     public void AddToken(Token token)
     {

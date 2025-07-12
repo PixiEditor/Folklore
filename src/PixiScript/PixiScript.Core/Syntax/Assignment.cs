@@ -26,12 +26,24 @@ public class Assignment : SyntaxNode
         }
     }
 
-    public override bool IsValid()
+    public override bool IsValid(out string[] errors)
     {
         bool hasVariable = AssignTo != null;
-        return hasVariable && (
-            (AssignedConstantLiteral != null && AssignedReference == null) ||
-            (AssignedConstantLiteral == null && AssignedReference != null)
-        );
+
+        if (!hasVariable)
+        {
+            errors = new[] { "Assignment must have a variable to assign to." };
+            return false;
+        }
+
+        bool hasValue = AssignedConstantLiteral != null || AssignedReference != null;
+        if (!hasValue)
+        {
+            errors = new[] { "Assignment must have a value to assign." };
+            return false;
+        }
+
+        errors = [];
+        return true;
     }
 }

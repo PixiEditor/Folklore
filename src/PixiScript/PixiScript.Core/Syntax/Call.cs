@@ -23,18 +23,19 @@ public class Call : SyntaxNode
         }
     }
 
-    public override bool IsValid()
+    public override bool IsValid(out string[] errors)
     {
-        if (Tokens.Count < 1)
-            return false;
-
         if (BuiltInFunctions.Contains(FunctionName))
         {
-            if (Tokens.Count < 4 || Tokens.Last().Kind != TokenKind.EndOfLine)
-                return false;
-
-            if (Tokens[1].Kind != TokenKind.OpenPassingScope || Tokens[^2].Kind != TokenKind.ClosePassingScope)
+            if (Tokens[1].Kind != TokenKind.OpenPassingScope)
             {
+                errors = new[] { $"Function '{FunctionName}' expects an open passing scope '(', but found '{Tokens[1].Text}' at line: {Tokens[1].Line} column: {Tokens[1].Column}" };
+                return false;
+            }
+
+            if (Tokens[^2].Kind != TokenKind.ClosePassingScope)
+            {
+                errors = new[] { $"Function '{FunctionName}' expects a close passing scope ')', but found '{Tokens[^2].Text}' at line: {Tokens[^2].Line} column: {Tokens[^2].Column}" };
                 return false;
             }
 
@@ -46,6 +47,7 @@ public class Call : SyntaxNode
                 {
                     if (tokenKind != TokenKind.Separator)
                     {
+                        errors = new[] { $"Expected separator ',' at line: {Tokens[i].Line} column: {Tokens[i].Column}, but found '{Tokens[i].Text}'" };
                         return false;
                     }
 
@@ -54,11 +56,13 @@ public class Call : SyntaxNode
 
                 if (tokenKind != TokenKind.Identifier && tokenKind != TokenKind.Literal)
                 {
+                    errors = new[] { $"Expected identifier or literal at line: {Tokens[i].Line} column: {Tokens[i].Column}, but found '{Tokens[i].Text}'" };
                     return false;
                 }
             }
         }
 
+        errors = [];
         return true;
     }
 }

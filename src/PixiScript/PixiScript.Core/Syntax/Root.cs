@@ -18,7 +18,7 @@ public class Root : SyntaxNode
             foreach (var node in PotentialNodes)
             {
                 node.AddToken(token);
-                if (node.IsValid())
+                if (node.IsValid(out _))
                 {
                     Children.Add(node);
                     foundValidNode = true;
@@ -52,10 +52,50 @@ public class Root : SyntaxNode
         }
     }
 
-    public override bool IsValid()
+    public override bool IsValid(out string[] errors)
     {
-        return Children.Count > 0 &&
-               Children.All(child => child.IsValid());
+        List<string> errorMessages = new List<string>();
+        if (Children.Count == 0)
+        {
+            foreach (var node in PotentialNodes)
+            {
+                if (!node.IsValid(out string[] nodeErrors))
+                {
+                    errorMessages.AddRange(nodeErrors);
+                }
+            }
+
+            if (PotentialNodes.Count == 0 && Tokens.Count > 0)
+            {
+                if (Tokens[0].Kind == TokenKind.Identifier)
+                {
+                    errorMessages.Add(
+                        $"Unknown type '{Tokens[0].Text}' at line: {Tokens[0].Line} column: {Tokens[0].Column}");
+                }
+                else
+                {
+                    errorMessages.Add(
+                        $"Unexpected token '{Tokens[0].Text}' at line: {Tokens[0].Line} column: {Tokens[0].Column}");
+                }
+            }
+
+            errors = errorMessages.ToArray();
+            return false;
+        }
+
+        bool valid = true;
+        foreach (var child in Children)
+        {
+            if (!child.IsValid(out string[] nodeErrors))
+            {
+                errorMessages.AddRange(nodeErrors);
+                valid = false;
+            }
+        }
+
+
+        errors = errorMessages.ToArray();
+        return valid;
     }
 
     private static bool IsBuiltInVarType(string type)

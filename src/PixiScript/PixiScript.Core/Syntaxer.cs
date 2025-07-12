@@ -2,12 +2,12 @@ using PixiScript.Syntax;
 
 namespace PixiScript;
 
-public class Lexer
+public class Syntaxer
 {
     public Tokenizer Tokenizer { get; private set; }
     public int Position { get; private set; } = 0;
 
-    public Lexer(Tokenizer tokenizer)
+    public Syntaxer(Tokenizer tokenizer)
     {
         Tokenizer = tokenizer;
         Position = 0;
@@ -34,13 +34,11 @@ public class Lexer
             rootNode.AddToken(Tokenizer.CurrentToken);
         } while (Tokenizer.MoveNext() != null);
 
-        if (rootNode.IsValid())
+        if (rootNode.IsValid(out errors))
         {
-            errors = null;
             return new SyntaxTree(rootNode);
         }
 
-        errors = new[] { "Syntax error in the input." };
         return null;
 
     }

@@ -95,4 +95,21 @@ public class ParserTests
         Assert.Single(printCall.Arguments);
         Assert.Equal("someNumber", printCall.Arguments[0]);
     }
+
+    [Fact]
+    public void TestMissingSemicolon()
+    {
+        string syntax = """
+                        number someNumber = 10
+                        """;
+
+        var parsed = Parser.Parse(syntax, out string[]? errors);
+        Assert.NotNull(parsed);
+        Assert.NotNull(errors);
+        Assert.Single(errors);
+        Assert.Equal("Expected ';' at the end of the line.", errors[0]);
+        Assert.IsType<SyntaxTree>(parsed);
+        Assert.NotNull(parsed.Root);
+        Assert.Empty(parsed.Root.Children); // No valid nodes should be parsed
+    }
 }

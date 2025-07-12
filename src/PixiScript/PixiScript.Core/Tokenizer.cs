@@ -8,6 +8,8 @@ public class Tokenizer
 {
     public string Input { get; }
     public int Position { get; private set; }
+    public int LineNumber { get; private set; } = 1;
+    public int ColumnNumber => Position - Input.LastIndexOf('\n', Position - 1) - 1;
 
     public Token? CurrentToken { get; private set; }
 
@@ -17,9 +19,7 @@ public class Tokenizer
 
     static Tokenizer()
     {
-        keywords.Add("void");
-        keywords.Add("number");
-        keywords.Add("text");
+        keywords.AddRange(VariableDeclaration.BuiltInTypes);
         keywords.AddRange(Call.BuiltInFunctions);
     }
 
@@ -33,6 +33,7 @@ public class Tokenizer
     {
         Position = 0;
         tokenBuilder.Clear();
+        LineNumber = 1;
     }
 
     public List<Token> Tokenize()
@@ -65,6 +66,11 @@ public class Tokenizer
             do
             {
                 char currentChar = Input[Position];
+
+                if (currentChar == '\n')
+                {
+                    LineNumber++;
+                }
 
                 if (tokenBuilder.Length == 0 && char.IsWhiteSpace(currentChar))
                 {
@@ -162,7 +168,9 @@ public class Tokenizer
             Text = tokenText,
             Kind = kind,
             StartPosition = Position - tokenBuilder.Length,
-            EndPosition = Position
+            EndPosition = Position,
+            Line = LineNumber,
+            Column = ColumnNumber
         };
 
         return token;

@@ -5,8 +5,8 @@ public class Parser
     public static SyntaxTree? Parse(string input, out string[]? errors)
     {
         Tokenizer tokenizer = new Tokenizer(input);
-        Lexer lexer = new Lexer(tokenizer);
+        Syntaxer syntaxer = new Syntaxer(tokenizer);
 
-        return lexer.Parse(out errors);
+        return syntaxer.Parse(out errors);
     }
 }

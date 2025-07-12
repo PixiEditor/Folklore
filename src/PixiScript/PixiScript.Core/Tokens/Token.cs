@@ -4,6 +4,8 @@ public class Token
 {
     public int StartPosition { get; set; }
     public int EndPosition { get; set; }
+    public int Line { get; set; }
+    public int Column { get; set; }
     public string Text { get; set; }
     public TokenKind Kind { get; set; }
 }
