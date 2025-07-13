@@ -66,7 +66,7 @@ public class ParserTests
     }
 
     [Fact]
-    public void TestPrint()
+    public void TestLog()
     {
         string syntax = """
                         number someNumber = 10;
@@ -104,12 +104,76 @@ public class ParserTests
                         """;
 
         var parsed = Parser.Parse(syntax, out string[]? errors);
-        Assert.NotNull(parsed);
+        Assert.Null(parsed);
         Assert.NotNull(errors);
         Assert.Single(errors);
-        Assert.Equal("Expected ';' at the end of the line.", errors[0]);
+        Assert.Equal("Line 1, Column 22: ';' missing", errors[0]);
+    }
+
+    [Fact]
+    public void TestNotFullAssignment()
+    {
+        string syntax = """
+                        number someNumber = ;
+                        """;
+
+        var parsed = Parser.Parse(syntax, out string[]? errors);
+        Assert.Null(parsed);
+        Assert.NotNull(errors);
+        Assert.Single(errors);
+        Assert.Equal("Assignment must have a value to assign.", errors[0]);
+    }
+
+    [Fact]
+    public void TestMultiLineNotFullAssignment()
+    {
+        string syntax = """
+                        number someNumber1 = 2;
+                        number someNumber2 = ;
+                        number someNumber3 = 4.2;
+                        """;
+
+        var parsed = Parser.Parse(syntax, out string[]? errors);
+        Assert.Null(parsed);
+        Assert.NotNull(errors);
+        Assert.Single(errors);
+        Assert.Equal("Assignment must have a value to assign.", errors[0]);
+    }
+
+    [Fact]
+    public void TestInvalidVariableType()
+    {
+        string syntax = """
+                        invalidType someNumber = 10;
+                        """;
+
+        var parsed = Parser.Parse(syntax, out string[]? errors);
+        Assert.Null(parsed);
+        Assert.NotNull(errors);
+        Assert.Single(errors);
+        Assert.Equal("Unknown type 'invalidType' at line: 1 column: 11", errors[0]);
+    }
+
+    [Theory]
+    [InlineData("10")]
+    [InlineData("\"Hello World\"")]
+    public void TestLiteralLog(string literal)
+    {
+        string syntax = $"""
+                        log({literal});
+                        """;
+
+        var parsed = Parser.Parse(syntax, out string[]? errors);
+        Assert.NotNull(parsed);
+        Assert.Null(errors);
         Assert.IsType<SyntaxTree>(parsed);
         Assert.NotNull(parsed.Root);
-        Assert.Empty(parsed.Root.Children); // No valid nodes should be parsed
+        Assert.Single(parsed.Root.Children);
+
+        Assert.IsType<Call>(parsed.Root.Children[0]);
+        var printCall = (Call)parsed.Root.Children[0];
+        Assert.Equal("log", printCall.FunctionName);
+        Assert.Single(printCall.Arguments);
+        Assert.Equal(literal, printCall.Arguments[0]);
     }
 }

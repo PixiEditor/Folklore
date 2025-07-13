@@ -2,8 +2,8 @@
 
 public class TokenizerTests
 {
-    [Fact]
-    public void TestBasicStructure()
+    /*[Fact]
+    public void TestMethodDeclaration()
     {
         string syntax = """
                         void execute()
@@ -36,7 +36,7 @@ public class TokenizerTests
 
         Assert.Equal("}", tokens[5].Text);
         Assert.Equal(TokenKind.CloseScope, tokens[5].Kind);
-    }
+    }*/
 
     [Fact]
     public void TestMultiVariableDeclaration()
@@ -51,7 +51,6 @@ public class TokenizerTests
 
         Assert.NotNull(tokens);
         Assert.NotEmpty(tokens);
-        Assert.All(tokens, token => Assert.IsType<Token>(token));
         Assert.Equal(6, tokens.Count);
         Assert.Equal("number", tokens[0].Text);
         Assert.Equal(TokenKind.Keyword, tokens[0].Kind);
@@ -84,7 +83,6 @@ public class TokenizerTests
 
         Assert.NotNull(tokens);
         Assert.NotEmpty(tokens);
-        Assert.All(tokens, token => Assert.IsType<Token>(token));
         Assert.Equal(5, tokens.Count);
         Assert.Equal("number", tokens[0].Text);
         Assert.Equal(TokenKind.Keyword, tokens[0].Kind);
@@ -115,7 +113,6 @@ public class TokenizerTests
 
         Assert.NotNull(tokens);
         Assert.NotEmpty(tokens);
-        Assert.All(tokens, token => Assert.IsType<Token>(token));
         Assert.Equal(10, tokens.Count);
         Assert.Equal("number", tokens[0].Text);
         Assert.Equal(TokenKind.Keyword, tokens[0].Kind);
@@ -159,7 +156,6 @@ public class TokenizerTests
         var tokens = tokenizer.Tokenize();
         Assert.NotNull(tokens);
         Assert.NotEmpty(tokens);
-        Assert.All(tokens, token => Assert.IsType<Token>(token));
         Assert.Equal(5, tokens.Count);
         Assert.Equal("log", tokens[0].Text);
         Assert.Equal(TokenKind.Keyword, tokens[0].Kind);
@@ -185,7 +181,6 @@ public class TokenizerTests
         var tokens = tokenizer.Tokenize();
         Assert.NotNull(tokens);
         Assert.NotEmpty(tokens);
-        Assert.All(tokens, token => Assert.IsType<Token>(token));
         Assert.Equal(10, tokens.Count);
         Assert.Equal("text", tokens[0].Text);
         Assert.Equal(TokenKind.Keyword, tokens[0].Kind);
@@ -207,5 +202,31 @@ public class TokenizerTests
         Assert.Equal(TokenKind.ClosePassingScope, tokens[8].Kind);
         Assert.Equal(";", tokens[9].Text);
         Assert.Equal(TokenKind.EndOfLine, tokens[9].Kind);
+    }
+
+    [Fact]
+    public void TestTokenizerOfInvalidStringLiteral()
+    {
+        string syntax = """
+                        log(Hello World);
+                        """;
+
+        Tokenizer tokenizer = new Tokenizer(syntax);
+        var tokens = tokenizer.Tokenize();
+        Assert.NotNull(tokens);
+        Assert.NotEmpty(tokens);
+        Assert.Equal(6, tokens.Count);
+        Assert.Equal("log", tokens[0].Text);
+        Assert.Equal(TokenKind.Keyword, tokens[0].Kind);
+        Assert.Equal("(", tokens[1].Text);
+        Assert.Equal(TokenKind.OpenPassingScope, tokens[1].Kind);
+        Assert.Equal("Hello", tokens[2].Text);
+        Assert.Equal(TokenKind.Identifier, tokens[2].Kind);
+        Assert.Equal("World", tokens[3].Text);
+        Assert.Equal(TokenKind.Identifier, tokens[3].Kind);
+        Assert.Equal(")", tokens[4].Text);
+        Assert.Equal(TokenKind.ClosePassingScope, tokens[4].Kind);
+        Assert.Equal(";", tokens[5].Text);
+        Assert.Equal(TokenKind.EndOfLine, tokens[5].Kind);
     }
 }

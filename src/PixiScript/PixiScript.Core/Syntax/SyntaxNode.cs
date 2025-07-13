@@ -8,7 +8,25 @@ public abstract class SyntaxNode
     public List<Token> Tokens { get; protected set; } = new List<Token>();
     public int TokenPosition { get; set; } = 0;
 
-    public abstract bool IsValid(out string[] errors);
+    public virtual bool IsValid(out string[]? errors)
+    {
+        if (Rules == null || Rules.Count == 0)
+        {
+            errors = null;
+            return true;
+        }
+
+        foreach (var rule in Rules)
+        {
+            if (!rule.IsValid(Tokens, out errors))
+            {
+                return false;
+            }
+        }
+
+        errors = null;
+        return true;
+    }
 
     public void AddToken(Token token)
     {

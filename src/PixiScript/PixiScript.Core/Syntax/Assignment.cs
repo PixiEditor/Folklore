@@ -16,11 +16,12 @@ public class Assignment : SyntaxNode
 
     protected override void OnTokenAdded(Token token)
     {
-        if (token.Kind == TokenKind.Literal)
+        if (Tokens.Any(x => x.Kind == TokenKind.EndOfLine)) return;
+        if (token.Kind == TokenKind.Literal && AssignedConstantLiteral == null)
         {
             AssignedConstantLiteral = token.Text;
         }
-        else if (token.Kind == TokenKind.Identifier)
+        else if (token.Kind == TokenKind.Identifier && AssignedReference == null)
         {
             AssignedReference = new Reference(token.Text);
         }
