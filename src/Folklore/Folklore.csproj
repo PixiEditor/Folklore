@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <RootNamespace>Folklore</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Folklore.Core\Folklore.Core.csproj" />
+      <ProjectReference Include="..\Folklore.LLVMCompiler\Folklore.LLVMCompiler.csproj" />
+      <ProjectReference Include="..\Folklore.NetILCompiler\Folklore.NetILCompiler.csproj" />
+    </ItemGroup>
+
+</Project>

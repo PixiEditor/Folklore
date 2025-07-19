@@ -1,0 +1,52 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Folklore.Core", "Folklore.Core\Folklore.Core.csproj", "{33FE0ADD-C0F1-4C10-BDA6-E250FFFD518F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Folklore.Tests", "Folklore.Tests\Folklore.Tests.csproj", "{5F159015-95B9-422F-8AC2-A3003B38CB68}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Folklore.Intermediate", "Folklore.Intermediate\Folklore.Intermediate.csproj", "{11740EE4-EE05-420D-AC4A-3F11DE6686A7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Folklore.NetILCompiler", "Folklore.NetILCompiler\Folklore.NetILCompiler.csproj", "{8D2FC647-B973-4A97-B4F5-F09DDF5AF561}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestCS", "TestCS\TestCS.csproj", "{5CE2B7C7-41C7-4D8E-9E40-DB672D4FDD0B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Folklore", "Folklore\Folklore.csproj", "{32CA6705-C950-411F-A8C0-4884A31CC2D2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Folklore.LLVMCompiler", "Folklore.LLVMCompiler\Folklore.LLVMCompiler.csproj", "{A87B0FC6-8552-46B9-A4FF-827AD8B98E7A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{33FE0ADD-C0F1-4C10-BDA6-E250FFFD518F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{33FE0ADD-C0F1-4C10-BDA6-E250FFFD518F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{33FE0ADD-C0F1-4C10-BDA6-E250FFFD518F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{33FE0ADD-C0F1-4C10-BDA6-E250FFFD518F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5F159015-95B9-422F-8AC2-A3003B38CB68}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5F159015-95B9-422F-8AC2-A3003B38CB68}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5F159015-95B9-422F-8AC2-A3003B38CB68}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5F159015-95B9-422F-8AC2-A3003B38CB68}.Release|Any CPU.Build.0 = Release|Any CPU
+		{11740EE4-EE05-420D-AC4A-3F11DE6686A7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{11740EE4-EE05-420D-AC4A-3F11DE6686A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{11740EE4-EE05-420D-AC4A-3F11DE6686A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{11740EE4-EE05-420D-AC4A-3F11DE6686A7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8D2FC647-B973-4A97-B4F5-F09DDF5AF561}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8D2FC647-B973-4A97-B4F5-F09DDF5AF561}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8D2FC647-B973-4A97-B4F5-F09DDF5AF561}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8D2FC647-B973-4A97-B4F5-F09DDF5AF561}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5CE2B7C7-41C7-4D8E-9E40-DB672D4FDD0B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5CE2B7C7-41C7-4D8E-9E40-DB672D4FDD0B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5CE2B7C7-41C7-4D8E-9E40-DB672D4FDD0B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5CE2B7C7-41C7-4D8E-9E40-DB672D4FDD0B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{32CA6705-C950-411F-A8C0-4884A31CC2D2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32CA6705-C950-411F-A8C0-4884A31CC2D2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32CA6705-C950-411F-A8C0-4884A31CC2D2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32CA6705-C950-411F-A8C0-4884A31CC2D2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A87B0FC6-8552-46B9-A4FF-827AD8B98E7A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A87B0FC6-8552-46B9-A4FF-827AD8B98E7A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A87B0FC6-8552-46B9-A4FF-827AD8B98E7A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A87B0FC6-8552-46B9-A4FF-827AD8B98E7A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
