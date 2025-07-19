@@ -11,7 +11,7 @@ A node supports CPU and GPU executin logic. Folklore compiles into host native c
 Folklore was designed to run PixiEditor Node Graphs outside PixiEditor. 
 However, it's design is application-agnostic and the aim of the language is to be able to easily create GPU-accelerated graphics without the struggle.
 
-## PixiScript Example Node
+## Folklore node concept
 
 ```
 input num someNum;
@@ -22,14 +22,14 @@ num scale;
 // on node execute
 void execute()
 {
-num x = 4;
-num y = 10;
-scale = x + y;
+    num x = 4;
+    num y = 10;
+    scale = x + y;
 }
 
 // result draw func
 result_paint(gpu_ctx)
 {
-gpu_ctx.drawCircle(0, 0, scale, scale);
+    gpu_ctx.drawCircle(0, 0, scale, scale);
 }
 ```
