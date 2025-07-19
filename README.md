@@ -1,12 +1,15 @@
-PixiScript is a language for writing PixiEditor Nodes.
+Folklore is a language that speaks tales.
+
+It follows node-based paradigm, ensures graphics context and is easy to embed.
 
 Each node consists of a set of inputs, outputs and execution logic.
 
-A node supports CPU and GPU executin logic. PixiScript compiles into host native code and GPU shaders.
+A node supports CPU and GPU executin logic. Folklore compiles into host native code and GPU shaders.
 
 ## The goal
 
-PixiScript aims to run PixiEditor Node Graphs outside of PixiEditor.
+Folklore was designed to run PixiEditor Node Graphs outside PixiEditor. 
+However, it's design is application-agnostic and the aim of the language is to be able to easily create GPU-accelerated graphics without the struggle.
 
 ## PixiScript Example Node
 
