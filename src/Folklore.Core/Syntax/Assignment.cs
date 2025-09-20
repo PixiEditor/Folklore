@@ -1,4 +1,5 @@
 using Folklore.Logical;
+using Folklore.Types;
 
 namespace Folklore.Syntax;
 
@@ -6,12 +7,15 @@ public class Assignment : SyntaxNode
 {
     public override List<SyntaxRule>? Rules { get; }
     public Reference AssignTo { get; set; }
-    public string? AssignedConstantLiteral { get; private set; }
+    public Literal? AssignedConstantLiteral { get; private set; }
     public Reference? AssignedReference { get; private set; }
 
-    public Assignment(Reference assignTo)
+    public Dictionary<string, Reference> ReferencesInScope { get; }
+
+    public Assignment(Reference assignTo, Dictionary<string, Reference> referencesInScope)
     {
         AssignTo = assignTo;
+        ReferencesInScope = referencesInScope;
     }
 
     protected override void OnTokenAdded(Token token)
@@ -19,11 +23,15 @@ public class Assignment : SyntaxNode
         if (Tokens.Any(x => x.Kind == TokenKind.EndOfLine)) return;
         if (token.Kind == TokenKind.Literal && AssignedConstantLiteral == null)
         {
-            AssignedConstantLiteral = token.Text;
+            if (Literal.TryParse(token.Text, out var literal))
+            {
+                AssignedConstantLiteral = literal;
+            }
         }
         else if (token.Kind == TokenKind.Identifier && AssignedReference == null)
         {
-            AssignedReference = new Reference(token.Text);
+            var reference = ReferencesInScope[token.Text];
+            AssignedReference = new Reference(token.Text, reference.Type);
         }
     }
 
@@ -42,6 +50,38 @@ public class Assignment : SyntaxNode
         {
             errors = new[] { "Assignment must have a value to assign." };
             return false;
+        }
+
+        if (AssignedReference != null)
+        {
+            bool referenceExists = ReferencesInScope.ContainsKey(AssignedReference.Name);
+            if (!referenceExists)
+            {
+                errors = new[] { $"Reference '{AssignedReference.Name}' does not exist in the current scope." };
+                return false;
+            }
+
+            bool typesMatch = AssignTo!.Type?.Name.Equals(AssignedReference.Type?.Name, StringComparison.OrdinalIgnoreCase) ?? false;
+            if (!typesMatch)
+            {
+                errors = new[]
+                {
+                    $"Type mismatch: Cannot assign reference of type '{AssignedReference.Type?.Name}' to variable of type '{AssignTo!.Type!.Name}'."
+                };
+                return false;
+            }
+        }
+        else if (AssignedConstantLiteral != null)
+        {
+            bool typesMatch = AssignTo!.Type?.Name.Equals(AssignedConstantLiteral.Type.Name, StringComparison.OrdinalIgnoreCase) ?? false;
+            if (!typesMatch)
+            {
+                errors = new[]
+                {
+                    $"Type mismatch: Cannot assign literal of type '{AssignedConstantLiteral.Type.Name}' to variable of type '{AssignTo!.Type!.Name}'."
+                };
+                return false;
+            }
         }
 
         errors = [];

@@ -5,6 +5,8 @@ using System.Text;
 using Folklore.Intermediate;
 using Folklore.Syntax;
 using Folklore.Logical;
+using Folklore.Types;
+using Folklore.Types.Primitive;
 
 namespace Folklore.NetILTranspiler;
 
@@ -92,11 +94,23 @@ public class DotNetILCompiler : ISyntaxTreeCompiler
         generator.EmitWriteLine(local);
     }
 
-    private void PushConstant(ILGenerator sb, string constant)
+    private void PushConstant(ILGenerator sb, Literal constant)
     {
-        if (double.TryParse(constant, NumberStyles.Any, CultureInfo.InvariantCulture, out double number))
+        if (constant is Literal<string> textType)
         {
-            sb.Emit(OpCodes.Ldc_R8, number);
+            sb.Emit(OpCodes.Ldstr, textType.Value);
+            return;
+        }
+
+        if (constant is Literal<int> intType)
+        {
+            sb.Emit(OpCodes.Ldc_I4, intType.Value);
+            sb.Emit(OpCodes.Conv_R8); // Convert to double
+            return;
+        }
+        if (constant is Literal<double> doubleType)
+        {
+            sb.Emit(OpCodes.Ldc_R8, doubleType.Value);
         }
         else
         {
@@ -115,11 +129,12 @@ public class DotNetILCompiler : ISyntaxTreeCompiler
         generator.Emit(OpCodes.Stloc, index);
     }
 
-    private Type MapVariableTypeToLocalType(string variableType)
+    private Type MapVariableTypeToLocalType(FolkloreType variableType)
     {
         return variableType switch
         {
-            "number" => typeof(double),
+            NumberType => typeof(double),
+            TextType => typeof(string),
             _ => throw new NotSupportedException($"Variable type '{variableType}' is not supported.")
         };
     }

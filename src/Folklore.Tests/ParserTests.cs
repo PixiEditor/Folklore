@@ -1,4 +1,5 @@
-﻿using Folklore.Syntax;
+﻿using Folklore.Logical;
+using Folklore.Syntax;
 
 namespace Folklore.Tests;
 
@@ -48,21 +49,24 @@ public class ParserTests
         Assert.IsType<Assignment>(firstVariable.Children[0]);
         var firstAssignment = (Assignment)firstVariable.Children[0];
         Assert.Equal("someNumber", firstAssignment.AssignTo.Name);
-        Assert.Equal("10", firstAssignment.AssignedConstantLiteral);
+        Assert.IsType<Literal<int>>(firstAssignment.AssignedConstantLiteral);
+        Assert.Equal(10, ((firstAssignment.AssignedConstantLiteral as Literal<int>)!).Value);
 
         var secondVariable = (VariableDeclaration)parsed.Root.Children[1];
         Assert.Single(secondVariable.Children);
         Assert.IsType<Assignment>(secondVariable.Children[0]);
         var secondAssignment = (Assignment)secondVariable.Children[0];
         Assert.Equal("anotherNumber", secondAssignment.AssignTo.Name);
-        Assert.Equal("-50", secondAssignment.AssignedConstantLiteral);
+        Assert.IsType<Literal<int>>(secondAssignment.AssignedConstantLiteral);
+        Assert.Equal(-50, ((secondAssignment.AssignedConstantLiteral as Literal<int>)!).Value);
 
         var thirdVariable = (VariableDeclaration)parsed.Root.Children[2];
         Assert.Single(thirdVariable.Children);
         Assert.IsType<Assignment>(thirdVariable.Children[0]);
         var thirdAssignment = (Assignment)thirdVariable.Children[0];
         Assert.Equal("thirdNumber", thirdAssignment.AssignTo.Name);
-        Assert.Equal("3.14", thirdAssignment.AssignedConstantLiteral);
+        Assert.IsType<Literal<double>>(thirdAssignment.AssignedConstantLiteral);
+        Assert.Equal(3.14, ((thirdAssignment.AssignedConstantLiteral as Literal<double>)!).Value);
     }
 
     [Fact]
@@ -88,7 +92,8 @@ public class ParserTests
         Assert.IsType<Assignment>(firstVariable.Children[0]);
         var firstAssignment = (Assignment)firstVariable.Children[0];
         Assert.Equal("someNumber", firstAssignment.AssignTo.Name);
-        Assert.Equal("10", firstAssignment.AssignedConstantLiteral);
+        Assert.IsType<Literal<int>>(firstAssignment.AssignedConstantLiteral);
+        Assert.Equal(10, ((firstAssignment.AssignedConstantLiteral as Literal<int>)!).Value);
 
         var printCall = (Call)parsed.Root.Children[1];
         Assert.Equal("log", printCall.FunctionName);

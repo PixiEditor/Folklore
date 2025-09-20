@@ -43,7 +43,7 @@ if (parsed == null)
     return;
 }
 
-ISyntaxTreeCompiler compiler = new LlvmCompiler();
+ISyntaxTreeCompiler compiler = new DotNetILCompiler();
 Console.WriteLine($"Parsing succeeded. Compiling with {compiler.Name}...");
 Stopwatch sw = Stopwatch.StartNew();
 var main = compiler.DynamicCompile(parsed);

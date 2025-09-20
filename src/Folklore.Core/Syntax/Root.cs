@@ -1,3 +1,5 @@
+using Folklore.Logical;
+
 namespace Folklore.Syntax;
 
 public class Root : SyntaxNode
@@ -5,6 +7,8 @@ public class Root : SyntaxNode
     public override List<SyntaxRule>? Rules { get; }
 
     public List<SyntaxNode> PotentialNodes { get; } = new List<SyntaxNode>();
+
+    public Dictionary<string, Reference> DefinedReferences { get; } = new Dictionary<string, Reference>();
 
     public Root()
     {
@@ -21,6 +25,8 @@ public class Root : SyntaxNode
                 if (node.IsValid(out _))
                 {
                     Children.Add(node);
+                    AddReferences(node);
+
                     foundValidNode = true;
                     break;
                 }
@@ -34,12 +40,11 @@ public class Root : SyntaxNode
             return;
         }
 
-        // TODO: Variable type detection
         if (token is { Kind: TokenKind.Keyword })
         {
             if (IsBuiltInVarType(token.Text) && !IsInPotentialNodes(typeof(VariableDeclaration)))
             {
-                VariableDeclaration variableDeclaration = new VariableDeclaration();
+                VariableDeclaration variableDeclaration = new VariableDeclaration(DefinedReferences);
                 variableDeclaration.AddToken(token);
                 PotentialNodes.Add(variableDeclaration);
             }
@@ -49,6 +54,15 @@ public class Root : SyntaxNode
                 call.AddToken(token);
                 PotentialNodes.Add(call);
             }
+        }
+    }
+
+    private void AddReferences(SyntaxNode node)
+    {
+        if (node is VariableDeclaration varDecl)
+        {
+            DefinedReferences[varDecl.VariableName] =
+                new Reference(varDecl.VariableName, varDecl.VariableType);
         }
     }
 
@@ -102,7 +116,7 @@ public class Root : SyntaxNode
 
     private static bool IsBuiltInVarType(string type)
     {
-        return VariableDeclaration.BuiltInTypes.Contains(type);
+        return VariableDeclaration.BuiltInTypeMap.ContainsKey(type);
     }
 
     private static bool IsBuiltInFunc(string func)

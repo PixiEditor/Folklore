@@ -1,6 +1,9 @@
 ﻿using System.Globalization;
 using Folklore.Intermediate;
+using Folklore.Logical;
 using Folklore.Syntax;
+using Folklore.Types;
+using Folklore.Types.Primitive;
 using LLVMSharp.Interop;
 
 namespace Folklore.LLVMCompiler;
@@ -104,13 +107,31 @@ public class LlvmCompiler : ISyntaxTreeCompiler
     }
 
 
-    private unsafe void AssignTo(LLVMBuilderRef builder, LLVMValueRef varPtr, string literal)
+    private unsafe void AssignTo(LLVMBuilderRef builder, LLVMValueRef varPtr, Literal literal)
     {
-        if (double.TryParse(literal, NumberStyles.Any, CultureInfo.InvariantCulture, out var doubleValue))
+        if (literal is Literal<int> intType)
         {
-            var valRef = LLVM.ConstReal(LLVM.DoubleType(), doubleValue);
-            builder.BuildStore(valRef, varPtr);
+            AssignInt(builder, varPtr, intType.Value);
+            return;
         }
+        if (literal is Literal<double> doubleType)
+        {
+            AssignDouble(builder, varPtr, doubleType.Value);
+            return;
+        }
+    }
+
+    private static unsafe void AssignInt(LLVMBuilderRef builder, LLVMValueRef varPtr, int value)
+    {
+        const uint NumBits = 32;
+        var valRef = LLVM.ConstReal(LLVM.IntType(NumBits), value);
+        builder.BuildStore(valRef, varPtr);
+    }
+
+    private static unsafe void AssignDouble(LLVMBuilderRef builder, LLVMValueRef varPtr, double value)
+    {
+        var valRef = LLVM.ConstReal(LLVM.DoubleType(), value);
+        builder.BuildStore(valRef, varPtr);
     }
 
     private unsafe LLVMValueRef GenLocal(LLVMBuilderRef builder, LLVMOpaqueType* mappedType,
@@ -119,11 +140,11 @@ public class LlvmCompiler : ISyntaxTreeCompiler
         return builder.BuildAlloca(mappedType, declarationVariableType);
     }
 
-    private unsafe LLVMOpaqueType* MapVariableTypeToLocalType(string varType)
+    private unsafe LLVMOpaqueType* MapVariableTypeToLocalType(FolkloreType varType)
     {
         return varType switch
         {
-            "number" => LLVM.DoubleType(),
+            NumberType => LLVM.DoubleType(),
             _ => throw new NotSupportedException($"Variable type '{varType}' is not supported.")
         };
     }
