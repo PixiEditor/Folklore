@@ -21,7 +21,7 @@ public class TokenAtIndexIs : SyntaxRule
 
         System.Index i = Index < 0 ? ^(-this.Index) : this.Index;
         var token = tokens[i];
-        if (token.Kind != Kind)
+        if (!Kind.HasFlag(token.Kind))
         {
             errors = [$"{LineInfo(token)}'Expected {Kind} but found '{token.Text}' instead."];
             return false;

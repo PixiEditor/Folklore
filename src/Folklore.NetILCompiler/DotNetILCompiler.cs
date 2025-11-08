@@ -53,7 +53,7 @@ public class DotNetILCompiler : ISyntaxTreeCompiler
     {
         List<VariableDeclaration> locals = new List<VariableDeclaration>();
         List<LocalBuilder> localBuilders = new List<LocalBuilder>();
-        syntaxTree.Traverse(n =>
+        syntaxTree.Traverse((previous, n) =>
         {
             if (n is VariableDeclaration declaration)
             {
@@ -84,9 +84,55 @@ public class DotNetILCompiler : ISyntaxTreeCompiler
                     ConsoleLog(generator, local);
                 }
             }
+
+            if (n is MathExpression expression)
+            {
+                PushOperand(generator, expression.LeftOperand, locals, localBuilders);
+                PushOperand(generator, expression.RightOperand, locals, localBuilders);
+                EmitMathOperation(generator, expression.Operator.Text);
+                if (previous is Assignment assignTo)
+                {
+                    int localIndex = locals.FindIndex(ld => ld.VariableName == assignTo.AssignTo.Name);
+                    PopToVariable(generator, localIndex);
+                }
+            }
         });
 
         generator.Emit(OpCodes.Ret);
+    }
+    
+    private void EmitMathOperation(ILGenerator generator, string operatorText)
+    {
+        switch (operatorText)
+        {
+            case "+":
+                generator.Emit(OpCodes.Add);
+                break;
+            case "-":
+                generator.Emit(OpCodes.Sub);
+                break;
+            case "*":
+                generator.Emit(OpCodes.Mul);
+                break;
+            case "/":
+                generator.Emit(OpCodes.Div);
+                break;
+            default:
+                throw new NotSupportedException($"Operator '{operatorText}' is not supported.");
+        }
+    }
+
+    private void PushOperand(ILGenerator generator, Operand? leftOperand, List<VariableDeclaration> locals, List<LocalBuilder> localBuilders)
+    {
+        if (leftOperand!.IsLiteral)
+        {
+            PushConstant(generator, leftOperand.LiteralValue!);
+        }
+        else
+        {
+            int localIndex = locals.FindIndex(ld => ld.VariableName == leftOperand.ReferenceValue.Name);
+            generator.Emit(OpCodes.Ldloc, localBuilders[localIndex]);
+        }
     }
 
     private void ConsoleLog(ILGenerator generator, LocalBuilder local)

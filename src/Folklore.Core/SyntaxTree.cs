@@ -10,22 +10,22 @@ public class SyntaxTree
         Root = root;
     }
 
-    public void Traverse(Action<SyntaxNode> action)
+    public void Traverse(Action<SyntaxNode?, SyntaxNode> action)
     {
         if (Root == null)
         {
             return;
         }
 
-        TraverseNode(Root, action);
+        TraverseNode(null, Root, action);
     }
 
-    private void TraverseNode(SyntaxNode node, Action<SyntaxNode> action)
+    private void TraverseNode(SyntaxNode? previous, SyntaxNode node, Action<SyntaxNode?, SyntaxNode> action)
     {
-        action(node);
+        action(previous, node);
         foreach (var child in node.Children)
         {
-            TraverseNode(child, action);
+            TraverseNode(node, child, action);
         }
     }
 }

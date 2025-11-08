@@ -1,3 +1,4 @@
+using System.Reflection;
 using Folklore.Logical;
 using Folklore.Types;
 
@@ -10,7 +11,14 @@ public class Assignment : SyntaxNode
     public Literal? AssignedConstantLiteral { get; private set; }
     public Reference? AssignedReference { get; private set; }
 
+    public ReturnValueSyntaxNode AssignedExpression { get; private set; }
     public Dictionary<string, Reference> ReferencesInScope { get; }
+
+    private static Type[] AllReturnValueNodesTypes = Assembly.GetExecutingAssembly()
+        .GetTypes()
+        .Where(t => t.IsSubclassOf(typeof(ReturnValueSyntaxNode)) && !t.IsAbstract)
+        .ToArray();
+
 
     public Assignment(Reference assignTo, Dictionary<string, Reference> referencesInScope)
     {
@@ -20,18 +28,46 @@ public class Assignment : SyntaxNode
 
     protected override void OnTokenAdded(Token token)
     {
-        if (Tokens.Any(x => x.Kind == TokenKind.EndOfLine)) return;
-        if (token.Kind == TokenKind.Literal && AssignedConstantLiteral == null)
+        if (token.Kind == TokenKind.EndOfLine)
         {
-            if (Literal.TryParse(token.Text, out var literal))
+            if (Tokens.Count == 2)
             {
-                AssignedConstantLiteral = literal;
+                Token valueToken = Tokens[0];
+                if (valueToken.Kind == TokenKind.Literal && Literal.TryParse(valueToken.Text, out var literal))
+                {
+                    AssignedConstantLiteral = literal;
+                }
+                else if (valueToken.Kind == TokenKind.Identifier)
+                {
+                    AssignedReference = new Reference(valueToken.Text, ReferencesInScope[valueToken.Text].Type);
+                }
             }
-        }
-        else if (token.Kind == TokenKind.Identifier && AssignedReference == null)
-        {
-            var reference = ReferencesInScope[token.Text];
-            AssignedReference = new Reference(token.Text, reference.Type);
+            else
+            {
+                var potentialNodes = AllReturnValueNodesTypes.Select(t =>
+                    (ReturnValueSyntaxNode)Activator.CreateInstance(t)!).ToArray();
+
+                foreach (var node in potentialNodes)
+                {
+                    if (node is IScopeReferences scopeNode)
+                    {
+                        scopeNode.ReferencesInScope = ReferencesInScope;
+                    }
+
+                    foreach (var tokenToAdd in Tokens)
+                    {
+                        node.AddToken(tokenToAdd);
+                    }
+
+                    if (node.IsValid(out _))
+                    {
+                        Children.Add(node);
+
+                        AssignedExpression = (ReturnValueSyntaxNode)node;
+                        break;
+                    }
+                }
+            }
         }
     }
 
@@ -45,7 +81,7 @@ public class Assignment : SyntaxNode
             return false;
         }
 
-        bool hasValue = AssignedConstantLiteral != null || AssignedReference != null;
+        bool hasValue = AssignedConstantLiteral != null || AssignedReference != null || AssignedExpression != null;
         if (!hasValue)
         {
             errors = new[] { "Assignment must have a value to assign." };
@@ -61,7 +97,8 @@ public class Assignment : SyntaxNode
                 return false;
             }
 
-            bool typesMatch = AssignTo!.Type?.Name.Equals(AssignedReference.Type?.Name, StringComparison.OrdinalIgnoreCase) ?? false;
+            bool typesMatch =
+                AssignTo!.Type?.Name.Equals(AssignedReference.Type?.Name, StringComparison.OrdinalIgnoreCase) ?? false;
             if (!typesMatch)
             {
                 errors = new[]
@@ -73,7 +110,9 @@ public class Assignment : SyntaxNode
         }
         else if (AssignedConstantLiteral != null)
         {
-            bool typesMatch = AssignTo!.Type?.Name.Equals(AssignedConstantLiteral.Type.Name, StringComparison.OrdinalIgnoreCase) ?? false;
+            bool typesMatch =
+                AssignTo!.Type?.Name.Equals(AssignedConstantLiteral.Type.Name, StringComparison.OrdinalIgnoreCase) ??
+                false;
             if (!typesMatch)
             {
                 errors = new[]

@@ -1,12 +1,13 @@
 using Folklore.Rules;
+using Folklore.Types;
 
 namespace Folklore.Syntax;
 
-public class Call : SyntaxNode
+public class Call : ReturnValueSyntaxNode
 {
-    public static readonly string[] BuiltInFunctions = new[]
+    public static readonly Dictionary<string, FolkloreType> BuiltInFunctions = new()
     {
-        "log"
+        { "log", FolkloreType.Void }
     };
 
     public override List<SyntaxRule>? Rules { get; }
@@ -14,13 +15,15 @@ public class Call : SyntaxNode
     public string FunctionName => Tokens.Count > 0 ? Tokens[0].Text : string.Empty;
     public List<string> Arguments { get; } = new List<string>();
 
+    public override FolkloreType ReturnType => BuiltInFunctions.ContainsKey(FunctionName) ? BuiltInFunctions[FunctionName] : FolkloreType.Void;
+
     public Call()
     {
         // Define rules for the Call syntax node
         Rules = new List<SyntaxRule>
         {
             new EndsWithEndOfLine(),
-            new TokenTextIsOneOf(BuiltInFunctions, 0),
+            new TokenTextIsOneOf(BuiltInFunctions.Keys, 0),
             new TokenAtIndexIs(TokenKind.OpenPassingScope, 1),
             new TokenAtIndexIs(TokenKind.ClosePassingScope, -2),
         };

@@ -1,5 +1,7 @@
 ﻿using Folklore.Logical;
 using Folklore.Syntax;
+using Folklore.Types;
+using Folklore.Types.Primitive;
 
 namespace Folklore.Tests;
 
@@ -180,5 +182,65 @@ public class ParserTests
         Assert.Equal("log", printCall.FunctionName);
         Assert.Single(printCall.Arguments);
         Assert.Equal(literal, printCall.Arguments[0]);
+    }
+    
+    [Fact]
+    public void TestThatSimpleMathOperatorIsParsedCorrectly()
+    {
+        string syntax = """
+                        number num = 10 + 5;
+                        """;
+
+        var parsed = Parser.Parse(syntax, out string[]? errors);
+        Assert.NotNull(parsed);
+        Assert.Null(errors);
+        Assert.IsType<SyntaxTree>(parsed);
+        Assert.NotNull(parsed.Root);
+        Assert.Single(parsed.Root.Children);
+
+        Assert.IsType<VariableDeclaration>(parsed.Root.Children[0]);
+        var variableDeclaration = (VariableDeclaration)parsed.Root.Children[0];
+        Assert.Single(variableDeclaration.Children);
+        Assert.IsType<Assignment>(variableDeclaration.Children[0]);
+        var assignment = (Assignment)variableDeclaration.Children[0];
+        Assert.Equal("num", assignment.AssignTo.Name);
+        Assert.IsType<MathExpression>(assignment.AssignedExpression);
+        var mathExpression = (MathExpression)assignment.AssignedExpression;
+        Assert.Equal(4, mathExpression.Tokens.Count);
+        Assert.Equal("10", mathExpression.LeftOperand.LiteralValue.LiteralValue);
+        Assert.Equal("+", mathExpression.Operator.Text);
+        Assert.Equal("5", mathExpression.RightOperand.LiteralValue.LiteralValue);
+        Assert.Equal(";", mathExpression.Tokens[3].Text);
+    }
+    
+    [Fact]
+    public void TestThatMathOperatorWithReferenceIsParsedCorrectly()
+    {
+        string syntax = """
+                        number a = 5;
+                        number num = a + 5;
+                        """;
+
+        var parsed = Parser.Parse(syntax, out string[]? errors);
+        Assert.NotNull(parsed);
+        Assert.Null(errors);
+        Assert.IsType<SyntaxTree>(parsed);
+        Assert.NotNull(parsed.Root);
+        Assert.Equal(2, parsed.Root.Children.Count);
+        Assert.IsType<VariableDeclaration>(parsed.Root.Children[0]);
+        Assert.IsType<VariableDeclaration>(parsed.Root.Children[1]);
+        var variableDeclaration = (VariableDeclaration)parsed.Root.Children[1];
+        Assert.Single(variableDeclaration.Children);
+        Assert.IsType<Assignment>(variableDeclaration.Children[0]);
+        var assignment = (Assignment)variableDeclaration.Children[0];
+        Assert.Equal("num", assignment.AssignTo.Name);
+        Assert.IsType<MathExpression>(assignment.AssignedExpression);
+        var mathExpression = (MathExpression)assignment.AssignedExpression;
+        Assert.Equal(4, mathExpression.Tokens.Count);
+        Assert.Equal("a", mathExpression.LeftOperand.ReferenceValue.Name);
+        Assert.IsType<NumberType>(mathExpression.LeftOperand.ReferenceValue.Type);
+        Assert.Equal("+", mathExpression.Operator.Text);
+        Assert.Equal("5", mathExpression.RightOperand.LiteralValue.LiteralValue);
+        Assert.Equal(";", mathExpression.Tokens[3].Text);
     }
 }

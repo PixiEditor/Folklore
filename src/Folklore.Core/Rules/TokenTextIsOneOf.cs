@@ -2,10 +2,10 @@ namespace Folklore.Rules;
 
 public class TokenTextIsOneOf : SyntaxRule
 {
-    public string[] OneOf { get; }
+    public IEnumerable<string> OneOf { get; }
     public int Index { get; set; }
 
-    public TokenTextIsOneOf(string[] oneOf, int indexOfToken)
+    public TokenTextIsOneOf(IEnumerable<string> oneOf, int indexOfToken)
     {
         OneOf = oneOf;
         Index = indexOfToken;

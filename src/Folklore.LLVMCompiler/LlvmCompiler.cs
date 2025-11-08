@@ -54,7 +54,7 @@ public class LlvmCompiler : ISyntaxTreeCompiler
     private unsafe void GenerateMainMethod(SyntaxTree syntaxTree, LLVMBuilderRef builder)
     {
         Dictionary<string, LLVMValueRef> variables = new();
-        syntaxTree.Traverse(n =>
+        syntaxTree.Traverse((previous, n) =>
         {
             if (n is VariableDeclaration declaration)
             {
@@ -92,6 +92,11 @@ public class LlvmCompiler : ISyntaxTreeCompiler
                     ConsoleLog(builder, local);
                 }
             }
+
+            if (n is MathExpression mathExpr)
+            {
+                throw new NotImplementedException("Math expressions are not implemented in LLVM compiler yet.");
+            }
         });
 
         builder.BuildRet(LLVM.ConstInt(LLVM.Int32Type(), 0, 0));
@@ -114,6 +119,7 @@ public class LlvmCompiler : ISyntaxTreeCompiler
             AssignInt(builder, varPtr, intType.Value);
             return;
         }
+
         if (literal is Literal<double> doubleType)
         {
             AssignDouble(builder, varPtr, doubleType.Value);

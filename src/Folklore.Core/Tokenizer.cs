@@ -20,7 +20,7 @@ public class Tokenizer
     static Tokenizer()
     {
         keywords.AddRange(VariableDeclaration.BuiltInTypeMap.Keys.ToArray());
-        keywords.AddRange(Call.BuiltInFunctions);
+        keywords.AddRange(Call.BuiltInFunctions.Keys);
     }
 
     public Tokenizer(string input)

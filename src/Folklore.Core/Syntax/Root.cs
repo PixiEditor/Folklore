@@ -121,6 +121,6 @@ public class Root : SyntaxNode
 
     private static bool IsBuiltInFunc(string func)
     {
-        return Call.BuiltInFunctions.Contains(func);
+        return Call.BuiltInFunctions.ContainsKey(func);
     }
 }
