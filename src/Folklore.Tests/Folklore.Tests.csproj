@@ -21,6 +21,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Folklore.Core\Folklore.Core.csproj" />
+      <ProjectReference Include="..\Folklore.NetILCompiler\Folklore.NetILCompiler.csproj" />
     </ItemGroup>
 
 </Project>

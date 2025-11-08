@@ -207,9 +207,9 @@ public class ParserTests
         Assert.IsType<MathExpression>(assignment.AssignedExpression);
         var mathExpression = (MathExpression)assignment.AssignedExpression;
         Assert.Equal(4, mathExpression.Tokens.Count);
-        Assert.Equal("10", mathExpression.LeftOperand.LiteralValue.LiteralValue);
-        Assert.Equal("+", mathExpression.Operator.Text);
-        Assert.Equal("5", mathExpression.RightOperand.LiteralValue.LiteralValue);
+        Assert.Equal('+', mathExpression.OperationTree.Root.OperatorValue.Symbol);
+        Assert.Equal("10", mathExpression.OperationTree.Root.Left.OperandValue.LiteralValue.LiteralValue);
+        Assert.Equal("5", mathExpression.OperationTree.Root.Right.OperandValue.LiteralValue.LiteralValue);
         Assert.Equal(";", mathExpression.Tokens[3].Text);
     }
     
@@ -237,10 +237,39 @@ public class ParserTests
         Assert.IsType<MathExpression>(assignment.AssignedExpression);
         var mathExpression = (MathExpression)assignment.AssignedExpression;
         Assert.Equal(4, mathExpression.Tokens.Count);
-        Assert.Equal("a", mathExpression.LeftOperand.ReferenceValue.Name);
-        Assert.IsType<NumberType>(mathExpression.LeftOperand.ReferenceValue.Type);
-        Assert.Equal("+", mathExpression.Operator.Text);
-        Assert.Equal("5", mathExpression.RightOperand.LiteralValue.LiteralValue);
+        Assert.Equal('+', mathExpression.OperationTree.Root.OperatorValue.Symbol);
+        Assert.Equal("a", mathExpression.OperationTree.Root.Left.OperandValue.ReferenceValue.Name);
+        Assert.Equal("5", mathExpression.OperationTree.Root.Right.OperandValue.LiteralValue.LiteralValue);
         Assert.Equal(";", mathExpression.Tokens[3].Text);
+    }
+
+    [Fact]
+    public void TestThatMultiOperatorExpressionIsParsedCorrectly()
+    {
+        string syntax = """
+                        number num = 1 + 2 - 3;
+                        """;
+
+        var parsed = Parser.Parse(syntax, out string[]? errors);
+        Assert.NotNull(parsed);
+        Assert.Null(errors);
+        Assert.IsType<SyntaxTree>(parsed);
+        Assert.NotNull(parsed.Root);
+        Assert.Single(parsed.Root.Children);
+        Assert.IsType<VariableDeclaration>(parsed.Root.Children[0]);
+        var variableDeclaration = (VariableDeclaration)parsed.Root.Children[0];
+        Assert.Single(variableDeclaration.Children);
+        Assert.IsType<Assignment>(variableDeclaration.Children[0]);
+        var assignment = (Assignment)variableDeclaration.Children[0];
+        Assert.Equal("num", assignment.AssignTo.Name);
+        Assert.IsType<MathExpression>(assignment.AssignedExpression);
+        var mathExpression = (MathExpression)assignment.AssignedExpression;
+        Assert.Equal(6, mathExpression.Tokens.Count);
+        Assert.Equal('-', mathExpression.OperationTree.Root.OperatorValue.Symbol);
+        Assert.Equal('+', mathExpression.OperationTree.Root.Left.OperatorValue.Symbol);
+        Assert.Equal("1", mathExpression.OperationTree.Root.Left.Left.OperandValue.LiteralValue.LiteralValue);
+        Assert.Equal("2", mathExpression.OperationTree.Root.Left.Right.OperandValue.LiteralValue.LiteralValue);
+        Assert.Equal("3", mathExpression.OperationTree.Root.Right.OperandValue.LiteralValue.LiteralValue);
+        Assert.Equal(";", mathExpression.Tokens[5].Text);
     }
 }

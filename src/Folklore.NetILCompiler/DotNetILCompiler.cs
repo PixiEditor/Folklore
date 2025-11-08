@@ -87,9 +87,8 @@ public class DotNetILCompiler : ISyntaxTreeCompiler
 
             if (n is MathExpression expression)
             {
-                PushOperand(generator, expression.LeftOperand, locals, localBuilders);
-                PushOperand(generator, expression.RightOperand, locals, localBuilders);
-                EmitMathOperation(generator, expression.Operator.Text);
+                PushMathNode(expression.OperationTree.Root, generator, locals, localBuilders);
+
                 if (previous is Assignment assignTo)
                 {
                     int localIndex = locals.FindIndex(ld => ld.VariableName == assignTo.AssignTo.Name);
@@ -100,29 +99,60 @@ public class DotNetILCompiler : ISyntaxTreeCompiler
 
         generator.Emit(OpCodes.Ret);
     }
-    
-    private void EmitMathOperation(ILGenerator generator, string operatorText)
+
+    private void PushMathNode(MathTreeNode node, ILGenerator generator, List<VariableDeclaration> locals,
+        List<LocalBuilder> localBuilders)
     {
-        switch (operatorText)
+        if (node.Left != null)
         {
-            case "+":
+            PushMathNode(node.Left, generator, locals, localBuilders);
+        }
+
+        if (node.Right != null)
+        {
+            PushMathNode(node.Right, generator, locals, localBuilders);
+        }
+
+        if (node.OperatorValue != null)
+        {
+            EmitMathOperation(generator, node.OperatorValue);
+        }
+        else if (node.OperandValue != null)
+        {
+            PushOperand(generator, node.OperandValue, locals, localBuilders);
+        }
+    }
+    
+    private void EmitMathOperation(ILGenerator generator, Operator op)
+    {
+        switch (op.Symbol)
+        {
+            case '+':
                 generator.Emit(OpCodes.Add);
                 break;
-            case "-":
+            case '-':
                 generator.Emit(OpCodes.Sub);
                 break;
-            case "*":
+            case '*':
                 generator.Emit(OpCodes.Mul);
                 break;
-            case "/":
+            case '/':
                 generator.Emit(OpCodes.Div);
                 break;
+            case '%':
+                generator.Emit(OpCodes.Rem);
+                break;
+            case '^':
+                MethodInfo powMethod = typeof(Math).GetMethod("Pow", [typeof(double), typeof(double)])!;
+                generator.Emit(OpCodes.Call, powMethod);
+                break;
             default:
-                throw new NotSupportedException($"Operator '{operatorText}' is not supported.");
+                throw new NotSupportedException($"Operator '{op.Symbol}' is not supported.");
         }
     }
 
-    private void PushOperand(ILGenerator generator, Operand? leftOperand, List<VariableDeclaration> locals, List<LocalBuilder> localBuilders)
+    private void PushOperand(ILGenerator generator, Operand? leftOperand, List<VariableDeclaration> locals,
+        List<LocalBuilder> localBuilders)
     {
         if (leftOperand!.IsLiteral)
         {
@@ -154,6 +184,7 @@ public class DotNetILCompiler : ISyntaxTreeCompiler
             sb.Emit(OpCodes.Conv_R8); // Convert to double
             return;
         }
+
         if (constant is Literal<double> doubleType)
         {
             sb.Emit(OpCodes.Ldc_R8, doubleType.Value);

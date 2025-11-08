@@ -17,4 +17,14 @@ public class Operand
         IsLiteral = false;
         ReferenceValue = reference;
     }
+
+    public override string ToString()
+    {
+        if (IsLiteral)
+        {
+            return LiteralValue?.LiteralValue ?? string.Empty;
+        }
+        
+        return ReferenceValue?.Name ?? string.Empty;
+    }
 }

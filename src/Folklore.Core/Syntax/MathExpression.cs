@@ -8,45 +8,108 @@ namespace Folklore.Syntax;
 public class MathExpression : ReturnValueSyntaxNode, IScopeReferences
 {
     public override List<SyntaxRule>? Rules { get; }
-    
-    public Operand? LeftOperand { get; private set; }
-    public Token? Operator { get; private set; }
-    public Operand? RightOperand { get; private set; }
-    
-    public readonly string[] ValidOperators = new[]
-    {
-        "+",/* "-", "*", "/", "%", "^"*/
-    };
-    
+
+    public MathTree OperationTree { get; } = new MathTree(new MathTreeNode());
+
+    public readonly string[] ValidOperators =
+    [
+        "+", "-", "*", "/", "%", "^"
+    ];
+
     public override FolkloreType ReturnType => new NumberType();
-    
+
     public Dictionary<string, Reference> ReferencesInScope { get; set; }
- 
+
+    private MathTreeNode lastNode;
+
     public MathExpression()
     {
         Rules = new List<SyntaxRule>()
         {
-            new TokenAtIndexIs(TokenKind.Identifier | TokenKind.Literal, 0),
-            new TokenAtIndexIs(TokenKind.Operator, 1),
-            new TokenAtIndexIs(TokenKind.Identifier | TokenKind.Literal, 2),
             new EndsWithEndOfLine().Optional(),
         };
+
+        lastNode = OperationTree.Root;
     }
 
-    protected override void OnTokenAdded(Token token)
+    protected override void OnTokenAdded(Token newToken)
     {
-        int position = Tokens.Count - 1;
-        if (position == 0)
+        if (newToken.Kind == TokenKind.EndOfLine)
         {
-            LeftOperand = CreateOperand(token);
-        }
-        else if (position == 1)
-        {
-            Operator = token;
-        }
-        else if (position == 2)
-        {
-            RightOperand = CreateOperand(token);
+            Stack<MathTreeNode> output = new();
+            Stack<Operator> operators = new();
+
+            for (var index = 0; index < Tokens.Count; index++)
+            {
+                var token = Tokens[index];
+                if (token.Kind is TokenKind.Identifier or TokenKind.Keyword)
+                {
+                    if (ReferencesInScope.TryGetValue(token.Text, out var reference))
+                    {
+                        output.Push(new MathTreeNode
+                        {
+                            OperandValue = new Operand(new Reference(token.Text, reference.Type))
+                        });
+                    }
+                }
+                else if (token.Kind is TokenKind.Literal && Literal.TryParse(token.Text, out var literal))
+                {
+                    output.Push(new MathTreeNode
+                    {
+                        OperandValue = new Operand(literal)
+                    });
+                }
+                else if (token.Kind is TokenKind.OpenPassingScope)
+                {
+                    // Handle function calls or nested expressions
+                    var subExpression = new MathExpression();
+                    subExpression.ReferencesInScope = ReferencesInScope;
+                    while (index + 1 < Tokens.Count && Tokens[index + 1].Kind != TokenKind.ClosePassingScope)
+                    {
+                        index++;
+                        subExpression.AddToken(Tokens[index]);
+                    }
+
+                    subExpression.OnTokenAdded(new Token { Kind = TokenKind.EndOfLine, Text = ";" });
+                    output.Push(subExpression.OperationTree.Root);
+                }
+                else if (token.Kind == TokenKind.Operator)
+                {
+                    var op = new Operator(token.Text[0]);
+                    while (operators.Count > 0 && operators.Peek().Precedence >= op.Precedence)
+                    {
+                        var topOp = operators.Pop();
+                        var right = output.Pop();
+                        var left = output.Pop();
+                        output.Push(new MathTreeNode
+                        {
+                            OperatorValue = topOp,
+                            Left = left,
+                            Right = right
+                        });
+                    }
+
+                    operators.Push(op);
+                }
+            }
+
+            while (operators.Count > 0)
+            {
+                var topOp = operators.Pop();
+                var right = output.Pop();
+                var left = output.Pop();
+                output.Push(new MathTreeNode
+                {
+                    OperatorValue = topOp,
+                    Left = left,
+                    Right = right
+                });
+            }
+
+            if (output.Count > 0)
+            {
+                OperationTree.Root = output.Pop();
+            }
         }
     }
 
@@ -57,45 +120,36 @@ public class MathExpression : ReturnValueSyntaxNode, IScopeReferences
             return false;
         }
 
-        if (LeftOperand == null)
+        if (OperationTree.Root.IsEmpty)
         {
-            errors = ["Left operand is missing."];
+            errors = new[] { "Math expression must contain at least one operand." };
             return false;
         }
-        
-        if (Operator == null)
+
+        var errorsInTree = new List<string>();
+        OperationTree.Traverse(node =>
         {
-            errors = ["Operator is missing."];
+            if (node.IsEmpty)
+            {
+                errorsInTree.Add("Math expression nodes must have either an operator or an operand.");
+                return false;
+            }
+
+            if (!node.ChildrenFull && node.OperatorValue != null)
+            {
+                errorsInTree.Add("Math expression operators must have two operands.");
+                return false;
+            }
+
+            return true;
+        });
+
+        if (errorsInTree.Count > 0)
+        {
+            errors = errorsInTree.ToArray();
             return false;
         }
-        
-        if (RightOperand == null)
-        {
-            errors = ["Right operand is missing."];
-            return false;
-        }
-        
-        if (!ValidOperators.Contains(Operator.Text))
-        {
-            errors = [$"Invalid operator '{Operator.Text}' at line: {Operator.Line} column: {Operator.Column}."];
-            return false;
-        }
-        
+
         return true;
-    }
-    
-    private Operand? CreateOperand(Token token)
-    {
-        if(token.Kind == TokenKind.Literal && Literal.TryParse(token.Text, out var literal))
-        {
-            return new Operand(literal);
-        }
-
-        if(token.Kind is TokenKind.Identifier or TokenKind.Keyword && ReferencesInScope.TryGetValue(token.Text, out var reference))
-        {
-            return new Operand(new Reference(token.Text, reference.Type));
-        }
-
-        return null;
     }
 }
