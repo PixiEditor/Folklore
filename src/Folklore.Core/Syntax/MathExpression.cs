@@ -64,8 +64,22 @@ public class MathExpression : ReturnValueSyntaxNode, IScopeReferences
                     // Handle function calls or nested expressions
                     var subExpression = new MathExpression();
                     subExpression.ReferencesInScope = ReferencesInScope;
-                    while (index + 1 < Tokens.Count && Tokens[index + 1].Kind != TokenKind.ClosePassingScope)
+                    int openedScopes = 1;
+                    while (index + 1 < Tokens.Count)
                     {
+                        if (Tokens[index + 1].Kind is TokenKind.OpenPassingScope)
+                        {
+                            openedScopes++;
+                        }
+                        else if (Tokens[index + 1].Kind is TokenKind.ClosePassingScope)
+                        {
+                            openedScopes--;
+                            if (openedScopes == 0)
+                            {
+                                break;
+                            }
+                        }
+                        
                         index++;
                         subExpression.AddToken(Tokens[index]);
                     }
